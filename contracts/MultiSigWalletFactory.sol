@@ -20,11 +20,12 @@ contract MultiSigWalletFactory is Factory {
         _price = newprice;
     }
     
-    constructor(address toSend) public{
+    constructor(address toSend, uint256 price) public{
         require(msg.sender != 0x0);
         require(toSend != 0x0);
         _toSend = toSend;
         _owner = msg.sender;
+        _price = price;
     }
 
     /*
@@ -34,10 +35,14 @@ contract MultiSigWalletFactory is Factory {
     /// @param _owners List of initial owners.
     /// @param _required Number of required confirmations.
     /// @return Returns wallet address.
-    function create(address[] _owners, uint _required) payable public returns (address wallet)
-    {
+    function create(address[] _owners, uint _required) payable public returns (address wallet){
         require(msg.value >= _price);
         wallet = new MultiSigWallet(_owners, _required);
         register(wallet);
+        
+    }
+    
+    function sendMoney() public onlyOwner {
+        _owner.transfer(this.balance);
     }
 }
