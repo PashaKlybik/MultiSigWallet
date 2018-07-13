@@ -131,6 +131,15 @@ contract MultiSigWallet {
         OwnerAddition(owner);
     }
 
+    function isContract(address _to) internal view returns(bool) {
+		uint codeLength = 0;
+		assembly {
+			codeLength: = extcodesize(_to)
+		}
+		return (codeLength > 0);
+
+	}
+
     /// @dev Allows to remove an owner. Transaction has to be sent by wallet.
     /// @param owner Address of owner.
     function removeOwner(address owner)
@@ -190,6 +199,7 @@ contract MultiSigWallet {
         public
         returns (uint transactionId)
     {
+        require(!isContract(msg.sender));
         transactionId = addTransaction(destination, value, data);
         confirmTransaction(transactionId);
     }
@@ -202,6 +212,7 @@ contract MultiSigWallet {
         transactionExists(transactionId)
         notConfirmed(transactionId, msg.sender)
     {
+        require(!isContract(msg.sender));
         confirmations[transactionId][msg.sender] = true;
         Confirmation(msg.sender, transactionId);
         executeTransaction(transactionId);
@@ -215,6 +226,7 @@ contract MultiSigWallet {
         confirmed(transactionId, msg.sender)
         notExecuted(transactionId)
     {
+        require(!isContract(msg.sender));
         confirmations[transactionId][msg.sender] = false;
         Revocation(msg.sender, transactionId);
     }
@@ -227,6 +239,7 @@ contract MultiSigWallet {
         confirmed(transactionId, msg.sender)
         notExecuted(transactionId)
     {
+        require(!isContract(msg.sender));
         if (isConfirmed(transactionId)) {
             Transaction storage txn = transactions[transactionId];
             txn.executed = true;
