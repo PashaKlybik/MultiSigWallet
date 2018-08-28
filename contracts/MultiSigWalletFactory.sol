@@ -8,7 +8,7 @@ import "./MultiSigWallet.sol";
 contract MultiSigWalletFactory is Factory {
     address public _creator;
 	address public _toSend;
-	uint256 public _price;
+	uint256 _price;
 
 	modifier onlyOwner() {
 		require(_creator == msg.sender);
@@ -43,8 +43,18 @@ contract MultiSigWalletFactory is Factory {
 		require(newprice > 0);
 		_price = newprice;
 	}
-	
+
     function sendMoney() public {
 		_toSend.transfer(this.balance);
 	}
+
+  /// @dev Returns price.
+  /// @return uint256.
+  function getPrice()
+      public
+      constant
+      returns (uint256)
+  {
+      return _price;
+  }
 }
